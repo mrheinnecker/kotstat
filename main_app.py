@@ -25,6 +25,7 @@ Builder.load_string("""
                 root.on_press_button()
 
 <FOOD>:
+    on_enter: root.get_time()
     BoxLayout:
         TextInput:
             id: time
@@ -60,17 +61,27 @@ class KOT(Screen):
     def on_press_button(self):
         print("hello")
 
-    def get_time(self):
-        return datetime.datetime.now()
-
     pass
 
 class FOOD(Screen):
     def on_press_button(self, inp):
         print(inp)
     def get_time(self):
-        now = datetime.datetime.now()
-        self.ids.time.text = str(now)
+        now = str(datetime.datetime.now()).split(" ")
+        date=now[0]
+        hour = int(now[1].split(":")[0])
+        minute = round(int(now[1].split(":")[1])*(5/3)/50)*50
+        if minute == 60:
+            hour = hour+1
+            minute = 0
+        if hour >= 24:
+            hour = hour - 24
+        if minute == 0:
+            minstr = "00"
+        else:
+            minstr = str(minute)
+        time=str(hour)+":"+minstr
+        self.ids.time.text = time
     pass
 
 class TestApp(App):
