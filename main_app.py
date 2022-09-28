@@ -6,6 +6,7 @@ from kivy.uix.textinput import TextInput
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
 import datetime
+import pandas as pd
 Builder.load_string("""
 <KOT>:
     BoxLayout:
@@ -149,8 +150,7 @@ Builder.load_string("""
                     size_hint: (1, 1)
                     pos_hint: {"right": 1}
                     on_press: 
-                        root.on_press_button(txtinp.text)
-                    on_press: root.get_time()        
+                        root.store_input(food.text, amount.text, year.text, month.text, day.text, time.text)        
                 Button:
                     text: 'Goto kot'
                     size_hint: (1, 1)
@@ -167,8 +167,6 @@ class KOT(Screen):
     pass
 
 class FOOD(Screen):
-    def on_press_button(self, inp):
-        print(inp)
     def get_time(self):
 
         now = datetime.datetime.now()
@@ -203,6 +201,21 @@ class FOOD(Screen):
         if new<0:
             new = 0
         self.ids.amount.text = str(new)
+
+    def store_input(self, food, amount, year, month, day, time):
+        df = pd.read_csv("C:/Users/macrh/repos/kotstat/test.csv", dtype=str)
+        new_data={
+            "year": [year],
+            "month": [month],
+            "day": [day],
+            "time": [time],
+            "food": [food],
+            "amount": [amount]
+        }
+        new_df= pd.concat([df, pd.DataFrame(new_data)], ignore_index=True)
+        print(new_df)
+        new_df.to_csv("C:/Users/macrh/repos/kotstat/test.csv", index=False)
+
     pass
 
 class TestApp(App):
