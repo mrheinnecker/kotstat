@@ -9,24 +9,123 @@ import datetime
 import pandas as pd
 Builder.load_string("""
 <KOT>:
+    on_enter: root.get_time()
     BoxLayout:
-        orientation: 'vertical'
-        TextInput:
-            id: time
-            text: 'jou'
-            size_hint: (1, 1)
-            cursor_blink: True
-            font_size: 10
-            multiline: False
+        id: master_screen
+        orientation: 'vertical'  
+        BoxLayout:
+            id: time_sign
+            orientation: 'horizontal' 
+            TextInput:
+                id: day
+                text: ''
+                size_hint: (1/3, 1)
+                cursor_blink: True
+                font_size: 20
+                multiline: False    
+            TextInput:
+                id: month
+                text: ''
+                size_hint: (1/3, 1)
+                cursor_blink: True
+                font_size: 20
+                multiline: False  
+            TextInput:
+                id: year
+                text: ''
+                size_hint: (1, 1)
+                cursor_blink: True
+                font_size: 20
+                multiline: False  
+            TextInput:
+                id: time
+                text: ''
+                size_hint: (1, 1)
+                cursor_blink: True
+                font_size: 20
+                multiline: False  
         BoxLayout:
             orientation: 'horizontal'
             Button:
-                text: 'food'
-                on_press: root.manager.current = 'food'
+                text: '+ 1d'
+                size_hint: (1, 1)
+                pos_hint: { 'left' : 0}  
+                on_press:
+                    root.change_time(86400, day.text, month.text, year.text, time.text)   
             Button:
-                text: 'enter'
+                text: '+ 1h'
+                size_hint: (1, 1)
+                pos_hint: { 'left' : 0.1}   
+                on_press:
+                    root.change_time(3600, day.text, month.text, year.text, time.text) 
+            Button:
+                text: '+ 30m'
+                size_hint: (1, 1)
+                pos_hint: { 'left' : 0.2}  
+                on_press:
+                    root.change_time(1800, day.text, month.text, year.text, time.text)
+        BoxLayout:
+            orientation: 'horizontal'                               
+            Button:
+                text: '- 1d'
+                size_hint: (1, 1)
+                pos_hint: { 'left' : 0.4}
+                on_press:
+                    root.change_time(-86400, day.text, month.text, year.text, time.text)  
+            Button:
+                text: '- 1h'
+                size_hint: (1, 1)
+                pos_hint: { 'left' : 0.6}
+                on_press:
+                    root.change_time(-3600, day.text, month.text, year.text, time.text)                                 
+            Button:
+                text: '- 30m'
+                size_hint: (1, 1)
+                pos_hint: { 'left' : 0.8} 
+                on_press:
+                    root.change_time(-1800, day.text, month.text, year.text, time.text) 
+        BoxLayout:
+            orientation: 'horizontal'    
+            TextInput:
+                id: category
+                text: '1'
+                size_hint: (0.2, 1)
+                pos_hint: { 'left' : 0.8}
+                cursor_blink: True
+                font_size: 20
+                multiline: False 
+            Button:
+                text: '+'
+                size_hint: (0.15, 1)
+                pos_hint: { 'left' : 0.7}   
                 on_press: 
-                    root.on_press_button()
+                    root.change_amount("+", category.text)                             
+            Button:
+                text: '-'
+                size_hint: (0.15, 1)
+                pos_hint: { 'left' : 0.85}  
+                on_press: 
+                    root.change_amount("-", category.text)  
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint: (1, 3)  
+            Button:
+                text: 'most common food'  
+                size_hint: (1, 1)                                 
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint: (1, 1)  
+                Button:
+                    text: 'enter'
+                    size_hint: (1, 1)
+                    pos_hint: {"right": 1}
+                    on_press: 
+                        root.store_kot_input(category.text, year.text, month.text, day.text, time.text)        
+                Button:
+                    text: 'Goto food'
+                    size_hint: (1, 1)
+                    pos_hint: {"right": 1}
+                    on_press: root.manager.current = 'food'       
 
 <FOOD>:
     on_enter: root.get_time()
@@ -39,70 +138,68 @@ Builder.load_string("""
             TextInput:
                 id: day
                 text: ''
-                size_hint: (0.2, 1)
-                pos_hint: { 'left' : 0}
+                size_hint: (1/3, 1)
                 cursor_blink: True
                 font_size: 20
                 multiline: False    
             TextInput:
                 id: month
                 text: ''
-                size_hint: (0.2, 1)
-                pos_hint: { 'left' : 0.2}
+                size_hint: (1/3, 1)
                 cursor_blink: True
                 font_size: 20
                 multiline: False  
             TextInput:
                 id: year
                 text: ''
-                size_hint: (0.3, 1)
-                pos_hint: { 'left' : 0.4}
+                size_hint: (1, 1)
                 cursor_blink: True
                 font_size: 20
                 multiline: False  
             TextInput:
                 id: time
                 text: ''
-                size_hint: (0.3, 1)
-                pos_hint: { 'left' : 0.7}
+                size_hint: (1, 1)
                 cursor_blink: True
                 font_size: 20
                 multiline: False  
         BoxLayout:
             orientation: 'horizontal'
             Button:
-                text: '+ 1 day'
-                size_hint: (0.1, 1)
+                text: '+ 1d'
+                size_hint: (1, 1)
                 pos_hint: { 'left' : 0}  
                 on_press:
                     root.change_time(86400, day.text, month.text, year.text, time.text)   
             Button:
-                text: '- 1 day'
-                size_hint: (0.1, 1)
+                text: '+ 1h'
+                size_hint: (1, 1)
                 pos_hint: { 'left' : 0.1}   
                 on_press:
-                    root.change_time(-86400, day.text, month.text, year.text, time.text) 
+                    root.change_time(3600, day.text, month.text, year.text, time.text) 
             Button:
-                text: '+ 1h'
-                size_hint: (0.2, 1)
+                text: '+ 30m'
+                size_hint: (1, 1)
                 pos_hint: { 'left' : 0.2}  
                 on_press:
-                    root.change_time(3600, day.text, month.text, year.text, time.text)                               
+                    root.change_time(1800, day.text, month.text, year.text, time.text)
+        BoxLayout:
+            orientation: 'horizontal'                               
             Button:
-                text: '- 1h'
-                size_hint: (0.2, 1)
+                text: '- 1d'
+                size_hint: (1, 1)
                 pos_hint: { 'left' : 0.4}
                 on_press:
-                    root.change_time(-3600, day.text, month.text, year.text, time.text)  
+                    root.change_time(-86400, day.text, month.text, year.text, time.text)  
             Button:
-                text: '+ 30 min'
-                size_hint: (0.2, 1)
+                text: '- 1h'
+                size_hint: (1, 1)
                 pos_hint: { 'left' : 0.6}
                 on_press:
-                    root.change_time(1800, day.text, month.text, year.text, time.text)                                 
+                    root.change_time(-3600, day.text, month.text, year.text, time.text)                                 
             Button:
-                text: '- 30 min'
-                size_hint: (0.2, 1)
+                text: '- 30m'
+                size_hint: (1, 1)
                 pos_hint: { 'left' : 0.8} 
                 on_press:
                     root.change_time(-1800, day.text, month.text, year.text, time.text)  
@@ -161,9 +258,43 @@ Builder.load_string("""
 
 # Declare both screens
 class KOT(Screen):
-    def on_press_button(self):
-        print("hello")
+    def get_time(self):
 
+        now = datetime.datetime.now()
+        hour = now.hour
+        minute_rounded = round(round(now.minute*(5/3)/50)*50/(5/3))
+        time_rounded = now - datetime.timedelta(minutes=now.minute) + datetime.timedelta(minutes=minute_rounded)
+
+        self.ids.time.text = str(time_rounded.hour) + ":" + str(time_rounded.minute)
+        self.ids.day.text = str(time_rounded.day)
+        self.ids.month.text = str(time_rounded.month)
+        self.ids.year.text = str(time_rounded.year)
+    def change_time(self, amount, current_day, current_month, current_year, current_time):
+
+        current_hour=current_time.split(":")[0]
+        current_minute = current_time.split(":")[1]
+        current_date=datetime.datetime(year=int(current_year),
+                                        month=int(current_month),
+                                        day=int(current_day),
+                                        hour=int(current_hour),
+                                        minute=int(current_minute))
+        new_date = current_date + datetime.timedelta(seconds=int(amount))
+        self.ids.time.text = str(new_date.hour) + ":" + str(new_date.minute)
+        self.ids.day.text = str(new_date.day)
+        self.ids.month.text = str(new_date.month)
+        self.ids.year.text = str(new_date.year)
+    def store_kot_input(self, cat, year, month, day, time):
+        df = pd.read_csv("C:/Users/macrh/repos/kotstat/test2.csv", dtype=str)
+        new_data={
+            "year": [year],
+            "month": [month],
+            "day": [day],
+            "time": [time],
+            "category": [cat]
+        }
+        new_df= pd.concat([df, pd.DataFrame(new_data)], ignore_index=True)
+        print(new_df)
+        new_df.to_csv("C:/Users/macrh/repos/kotstat/test2.csv", index=False)
     pass
 
 class FOOD(Screen):
