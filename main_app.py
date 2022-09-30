@@ -5,11 +5,13 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.textinput import TextInput
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
+from os.path import dirname, join, exists
 import datetime
 import pandas as pd
 Builder.load_string("""
 <KOT>:
     on_enter: root.get_time()
+    on_enter: root.get_dir()
     BoxLayout:
         id: master_screen
         orientation: 'vertical'  
@@ -120,15 +122,20 @@ Builder.load_string("""
                     size_hint: (1, 1)
                     pos_hint: {"right": 1}
                     on_press: 
-                        root.store_kot_input(category.text, year.text, month.text, day.text, time.text)        
+                        root.store_kot_input(category.text, year.text, month.text, day.text, time.text, dir.text)        
                 Button:
                     text: 'Goto food'
                     size_hint: (1, 1)
                     pos_hint: {"right": 1}
-                    on_press: root.manager.current = 'food'       
+                    on_press: root.manager.current = 'food'   
+        TextInput:
+            id: dir
+            text: '' 
+            multiline: False   
 
 <FOOD>:
     on_enter: root.get_time()
+    on_enter: root.get_dir()
     BoxLayout:
         id: master_screen
         orientation: 'vertical'  
@@ -247,12 +254,16 @@ Builder.load_string("""
                     size_hint: (1, 1)
                     pos_hint: {"right": 1}
                     on_press: 
-                        root.store_input(food.text, amount.text, year.text, month.text, day.text, time.text)        
+                        root.store_input(food.text, amount.text, year.text, month.text, day.text, time.text, dir_food.text)        
                 Button:
                     text: 'Goto kot'
                     size_hint: (1, 1)
                     pos_hint: {"right": 1}
-                    on_press: root.manager.current = 'kot'            
+                    on_press: root.manager.current = 'kot'  
+        TextInput:
+            id: dir_food
+            text: '' 
+            multiline: False            
 
 """)
 
@@ -269,6 +280,8 @@ class KOT(Screen):
         self.ids.day.text = str(time_rounded.day)
         self.ids.month.text = str(time_rounded.month)
         self.ids.year.text = str(time_rounded.year)
+    def get_dir(self):
+        self.ids.dir.text = rf
     def change_time(self, amount, current_day, current_month, current_year, current_time):
 
         current_hour=current_time.split(":")[0]
@@ -283,21 +296,37 @@ class KOT(Screen):
         self.ids.day.text = str(new_date.day)
         self.ids.month.text = str(new_date.month)
         self.ids.year.text = str(new_date.year)
-    def store_kot_input(self, cat, year, month, day, time):
-        df = pd.read_csv("C:/Users/macrh/repos/kotstat/test2.csv", dtype=str)
-        new_data={
+    def store_kot_input(self, cat, year, month, day, time, dir):
+        filepath=join(dir, 'kot.csv')
+        #print(rf)
+        #filepath="C:/Users/macrh/repos/kotstat/test2.csv"
+        new_data = {
             "year": [year],
             "month": [month],
             "day": [day],
             "time": [time],
             "category": [cat]
         }
-        new_df= pd.concat([df, pd.DataFrame(new_data)], ignore_index=True)
-        print(new_df)
-        new_df.to_csv("C:/Users/macrh/repos/kotstat/test2.csv", index=False)
+        if(exists(filepath)):
+            df = pd.read_csv(filepath, dtype=str)
+            new_df= pd.concat([df, pd.DataFrame(new_data)], ignore_index=True)
+        else:
+            new_df = pd.DataFrame(new_data)
+        #print(new_df)
+        new_df.to_csv(filepath, index=False)
+    def change_amount(self, dir, current):
+        if dir == "+":
+            new = float(current)+0.5
+        else:
+            new = float(current)-0.5
+        if new<0:
+            new = 0
+        self.ids.category.text = str(new)
     pass
 
 class FOOD(Screen):
+    def get_dir(self):
+        self.ids.dir_food.text = rf
     def get_time(self):
 
         now = datetime.datetime.now()
@@ -333,8 +362,10 @@ class FOOD(Screen):
             new = 0
         self.ids.amount.text = str(new)
 
-    def store_input(self, food, amount, year, month, day, time):
-        df = pd.read_csv("C:/Users/macrh/repos/kotstat/test.csv", dtype=str)
+    def store_input(self, food, amount, year, month, day, time, dir):
+        #print(rf)
+        #filepath="C:/Users/macrh/repos/kotstat/test.csv"
+        filepath = join(dir, 'food.csv')
         new_data={
             "year": [year],
             "month": [month],
@@ -343,9 +374,13 @@ class FOOD(Screen):
             "food": [food],
             "amount": [amount]
         }
-        new_df= pd.concat([df, pd.DataFrame(new_data)], ignore_index=True)
-        print(new_df)
-        new_df.to_csv("C:/Users/macrh/repos/kotstat/test.csv", index=False)
+        if(exists(filepath)):
+            df = pd.read_csv(filepath, dtype=str)
+            new_df= pd.concat([df, pd.DataFrame(new_data)], ignore_index=True)
+        else:
+            new_df = pd.DataFrame(new_data)
+        #print(new_df)
+        new_df.to_csv(filepath, index=False)
 
     pass
 
@@ -353,10 +388,18 @@ class TestApp(App):
 
     def build(self):
         # Create the screen manager
+        global rf
+        rf=self.initilize_global_vars()
+        #print(rf)
         sm = ScreenManager()
         sm.add_widget(KOT(name='kot'))
         sm.add_widget(FOOD(name='food'))
         return sm
+
+    def initilize_global_vars(self):
+        root_folder = self.user_data_dir
+
+        return root_folder
 
 if __name__ == '__main__':
     TestApp().run()
