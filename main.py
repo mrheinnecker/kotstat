@@ -145,33 +145,39 @@ Builder.load_string("""
             TextInput:
                 id: day
                 text: ''
-                size_hint: (1/3, 1)
+                size_hint: (1/2, 1)
                 cursor_blink: True
-                font_size: 20
+                font_size: 80
                 multiline: False    
             TextInput:
                 id: month
                 text: ''
-                size_hint: (1/3, 1)
+                size_hint: (1/2, 1)
                 cursor_blink: True
-                font_size: 20
+                font_size: 80
                 multiline: False  
             TextInput:
                 id: year
                 text: ''
                 size_hint: (1, 1)
                 cursor_blink: True
-                font_size: 20
+                font_size: 80
                 multiline: False  
             TextInput:
                 id: time
                 text: ''
                 size_hint: (1, 1)
                 cursor_blink: True
-                font_size: 20
+                font_size: 80
                 multiline: False  
+            Button:
+                text: 'kot'
+                size_hint: (0.75, 1)
+                pos_hint: {"right": 1}
+                on_press: root.manager.current = 'kot'  
         BoxLayout:
             orientation: 'horizontal'
+            size_hint: (1, 2) 
             Button:
                 text: '+ 1d'
                 size_hint: (1, 1)
@@ -191,7 +197,8 @@ Builder.load_string("""
                 on_press:
                     root.change_time(1800, day.text, month.text, year.text, time.text)
         BoxLayout:
-            orientation: 'horizontal'                               
+            orientation: 'horizontal'   
+            size_hint: (1, 2)                             
             Button:
                 text: '- 1d'
                 size_hint: (1, 1)
@@ -242,7 +249,7 @@ Builder.load_string("""
                     root.change_amount("-", amount.text)  
         BoxLayout:
             orientation: 'horizontal'
-            size_hint: (1, 3)  
+            size_hint: (1, 7)  
             Button:
                 text: 'most common food'  
                 size_hint: (1, 1)                                 
@@ -256,7 +263,7 @@ Builder.load_string("""
                     on_press: 
                         root.store_input(food.text, amount.text, year.text, month.text, day.text, time.text, dir_food.text)        
                 Button:
-                    text: 'Goto kot'
+                    text: 'placeholder'
                     size_hint: (1, 1)
                     pos_hint: {"right": 1}
                     on_press: root.manager.current = 'kot'  
@@ -297,15 +304,15 @@ class KOT(Screen):
         self.ids.month.text = str(new_date.month)
         self.ids.year.text = str(new_date.year)
     def store_kot_input(self, cat, year, month, day, time, dir):
-        filepath=join(dir, 'kot.csv')
-        #print(rf)
+        #filepath=join(dir, 'kot.csv')
         #filepath="C:/Users/macrh/repos/kotstat/test2.csv"
+        filepath="/sdcard/KOTSTAT/kot.csv"
         new_data = {
             "year": [year],
             "month": [month],
             "day": [day],
             "time": [time],
-            "category": [cat]
+            "category": [cat],
         }
         if(exists(filepath)):
             df = pd.read_csv(filepath, dtype=str)
@@ -363,9 +370,9 @@ class FOOD(Screen):
         self.ids.amount.text = str(new)
 
     def store_input(self, food, amount, year, month, day, time, dir):
-        #print(rf)
         #filepath="C:/Users/macrh/repos/kotstat/test.csv"
-        filepath = join(dir, 'food.csv')
+        #filepath = join(dir, 'food.csv')
+        filepath = "/sdcard/KOTSTAT/food.csv"
         new_data={
             "year": [year],
             "month": [month],
