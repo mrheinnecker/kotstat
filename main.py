@@ -21,31 +21,36 @@ Builder.load_string("""
             TextInput:
                 id: day
                 text: ''
-                size_hint: (1/3, 1)
+                size_hint: (1/2, 1)
                 cursor_blink: True
-                font_size: 20
+                font_size: 80
                 multiline: False    
             TextInput:
                 id: month
                 text: ''
-                size_hint: (1/3, 1)
+                size_hint: (1/2, 1)
                 cursor_blink: True
-                font_size: 20
+                font_size: 80
                 multiline: False  
             TextInput:
                 id: year
                 text: ''
                 size_hint: (1, 1)
                 cursor_blink: True
-                font_size: 20
+                font_size: 80
                 multiline: False  
             TextInput:
                 id: time
                 text: ''
                 size_hint: (1, 1)
                 cursor_blink: True
-                font_size: 20
+                font_size: 80
                 multiline: False  
+            Button:
+                text: 'food'
+                size_hint: (0.75, 1)
+                pos_hint: {"right": 1}
+                on_press: root.manager.current = 'food'  
         BoxLayout:
             orientation: 'horizontal'
             Button:
@@ -90,11 +95,11 @@ Builder.load_string("""
             orientation: 'horizontal'    
             TextInput:
                 id: category
-                text: '1'
+                text: '0'
                 size_hint: (0.2, 1)
                 pos_hint: { 'left' : 0.8}
                 cursor_blink: True
-                font_size: 20
+                font_size: 55
                 multiline: False 
             Button:
                 text: '+'
@@ -135,7 +140,7 @@ Builder.load_string("""
 
 <FOOD>:
     on_enter: root.get_time()
-    on_enter: root.get_dir()
+    on_enter: root.show_last()
     BoxLayout:
         id: master_screen
         orientation: 'vertical'  
@@ -225,7 +230,7 @@ Builder.load_string("""
                 size_hint: (0.5, 1)
                 pos_hint: { 'left' : 0}
                 cursor_blink: True
-                font_size: 20
+                font_size: 55
                 multiline: False    
             TextInput:
                 id: amount
@@ -267,46 +272,55 @@ Builder.load_string("""
                     size_hint: (1, 1)
                     pos_hint: {"right": 1}
                     on_press: root.manager.current = 'kot'  
-        TextInput:
+        Label:
             id: dir_food
             text: '' 
-            multiline: False            
+            multiline: True           
 
 """)
+
+def calc_time_diff(amount, current_day, current_month, current_year, current_time):
+    current_hour = current_time.split(":")[0]
+    current_minute = current_time.split(":")[1]
+    current_date = datetime.datetime(year=int(current_year),
+                                     month=int(current_month),
+                                     day=int(current_day),
+                                     hour=int(current_hour),
+                                     minute=int(current_minute))
+    new_date = current_date + datetime.timedelta(seconds=int(amount))
+    return new_date
+
+def adjust_minutes(inp_min):
+    if (int(inp_min) == 0):
+        str_minute = "00"
+    else:
+        str_minute = "30"
+    return str_minute
+
 
 # Declare both screens
 class KOT(Screen):
     def get_time(self):
-
         now = datetime.datetime.now()
         hour = now.hour
         minute_rounded = round(round(now.minute*(5/3)/50)*50/(5/3))
         time_rounded = now - datetime.timedelta(minutes=now.minute) + datetime.timedelta(minutes=minute_rounded)
-
-        self.ids.time.text = str(time_rounded.hour) + ":" + str(time_rounded.minute)
+        self.ids.time.text = str(time_rounded.hour) + ":" + adjust_minutes(time_rounded.minute)
         self.ids.day.text = str(time_rounded.day)
         self.ids.month.text = str(time_rounded.month)
         self.ids.year.text = str(time_rounded.year)
     def get_dir(self):
         self.ids.dir.text = rf
     def change_time(self, amount, current_day, current_month, current_year, current_time):
-
-        current_hour=current_time.split(":")[0]
-        current_minute = current_time.split(":")[1]
-        current_date=datetime.datetime(year=int(current_year),
-                                        month=int(current_month),
-                                        day=int(current_day),
-                                        hour=int(current_hour),
-                                        minute=int(current_minute))
-        new_date = current_date + datetime.timedelta(seconds=int(amount))
-        self.ids.time.text = str(new_date.hour) + ":" + str(new_date.minute)
+        new_date = calc_time_diff(amount, current_day, current_month, current_year, current_time)
+        self.ids.time.text = str(new_date.hour) + ":" + adjust_minutes(new_date.minute)
         self.ids.day.text = str(new_date.day)
         self.ids.month.text = str(new_date.month)
         self.ids.year.text = str(new_date.year)
     def store_kot_input(self, cat, year, month, day, time, dir):
         #filepath=join(dir, 'kot.csv')
-        #filepath="C:/Users/macrh/repos/kotstat/test2.csv"
-        filepath="/sdcard/KOTSTAT/kot.csv"
+        filepath="C:/Users/macrh/repos/kotstat/test2.csv"
+        #filepath="/sdcard/KOTSTAT/kot.csv"
         new_data = {
             "year": [year],
             "month": [month],
@@ -320,46 +334,43 @@ class KOT(Screen):
         else:
             new_df = pd.DataFrame(new_data)
         #print(new_df)
-        new_df.to_csv(filepath, index=False)
+        if((float(cat) > 0) and (float(cat) < 8)):
+            new_df.to_csv(filepath, index=False)
+        self.ids.category.text = '0'
     def change_amount(self, dir, current):
         if dir == "+":
-            new = float(current)+0.5
+            new = float(current)+1
         else:
-            new = float(current)-0.5
+            new = float(current)-1
         if new<0:
             new = 0
+        if new>7:
+            new = 7
         self.ids.category.text = str(new)
     pass
 
 class FOOD(Screen):
-    def get_dir(self):
-        self.ids.dir_food.text = rf
+    def show_last(self):
+        filepath = "/sdcard/KOTSTAT/food.csv"
+        filepath = "C:/Users/macrh/repos/kotstat/test.csv"
+        if(exists(filepath)):
+            df = pd.read_csv(filepath, dtype=str)
+            self.ids.dir_food.text = str(df.iloc[-1:]).split("\n1")[1]
     def get_time(self):
-
         now = datetime.datetime.now()
         hour = now.hour
         minute_rounded = round(round(now.minute*(5/3)/50)*50/(5/3))
         time_rounded = now - datetime.timedelta(minutes=now.minute) + datetime.timedelta(minutes=minute_rounded)
-
-        self.ids.time.text = str(time_rounded.hour) + ":" + str(time_rounded.minute)
+        self.ids.time.text = str(time_rounded.hour) + ":" + adjust_minutes(time_rounded.minute)
         self.ids.day.text = str(time_rounded.day)
         self.ids.month.text = str(time_rounded.month)
         self.ids.year.text = str(time_rounded.year)
     def change_time(self, amount, current_day, current_month, current_year, current_time):
-
-        current_hour=current_time.split(":")[0]
-        current_minute = current_time.split(":")[1]
-        current_date=datetime.datetime(year=int(current_year),
-                                        month=int(current_month),
-                                        day=int(current_day),
-                                        hour=int(current_hour),
-                                        minute=int(current_minute))
-        new_date = current_date + datetime.timedelta(seconds=int(amount))
-        self.ids.time.text = str(new_date.hour) + ":" + str(new_date.minute)
+        new_date = calc_time_diff(amount, current_day, current_month, current_year, current_time)
+        self.ids.time.text = str(new_date.hour) + ":" + adjust_minutes(new_date.minute)
         self.ids.day.text = str(new_date.day)
         self.ids.month.text = str(new_date.month)
         self.ids.year.text = str(new_date.year)
-
     def change_amount(self, dir, current):
         if dir == "+":
             new = float(current)+0.5
@@ -368,10 +379,8 @@ class FOOD(Screen):
         if new<0:
             new = 0
         self.ids.amount.text = str(new)
-
     def store_input(self, food, amount, year, month, day, time, dir):
         #filepath="C:/Users/macrh/repos/kotstat/test.csv"
-        #filepath = join(dir, 'food.csv')
         filepath = "/sdcard/KOTSTAT/food.csv"
         new_data={
             "year": [year],
@@ -386,27 +395,21 @@ class FOOD(Screen):
             new_df= pd.concat([df, pd.DataFrame(new_data)], ignore_index=True)
         else:
             new_df = pd.DataFrame(new_data)
-        #print(new_df)
-        new_df.to_csv(filepath, index=False)
-
+        if(food!=''):
+            new_df.to_csv(filepath, index=False)
+            self.ids.food.text = ''
     pass
 
 class TestApp(App):
-
     def build(self):
-        # Create the screen manager
         global rf
         rf=self.initilize_global_vars()
-        #print(rf)
         sm = ScreenManager()
         sm.add_widget(KOT(name='kot'))
         sm.add_widget(FOOD(name='food'))
         return sm
-
     def initilize_global_vars(self):
         root_folder = self.user_data_dir
-
         return root_folder
-
 if __name__ == '__main__':
     TestApp().run()
