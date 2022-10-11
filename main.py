@@ -127,7 +127,7 @@ Builder.load_string("""
                     size_hint: (1, 1)
                     pos_hint: {"right": 1}
                     on_press: 
-                        root.store_kot_input(category.text, year.text, month.text, day.text, time.text, dir.text)        
+                        root.store_kot_input(category.text, year.text, month.text, day.text, time.text)        
                     on_press: 
                         root.show_last()
                 Button:
@@ -240,7 +240,7 @@ Builder.load_string("""
                 size_hint: (0.2, 1)
                 pos_hint: { 'left' : 0.8}
                 cursor_blink: True
-                font_size: 20
+                font_size: 55
                 multiline: False 
             Button:
                 text: '+'
@@ -301,6 +301,9 @@ def adjust_minutes(inp_min):
         str_minute = "30"
     return str_minute
 
+#def get_environment():
+
+
 
 # Declare both screens
 class KOT(Screen):
@@ -327,7 +330,7 @@ class KOT(Screen):
         self.ids.day.text = str(new_date.day)
         self.ids.month.text = str(new_date.month)
         self.ids.year.text = str(new_date.year)
-    def store_kot_input(self, cat, year, month, day, time, dir):
+    def store_kot_input(self, cat, year, month, day, time):
         #filepath=join(dir, 'kot.csv')
         #filepath="C:/Users/macrh/repos/kotstat/test2.csv"
         filepath="/sdcard/KOTSTAT/kot.csv"
