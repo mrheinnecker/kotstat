@@ -128,7 +128,6 @@ Builder.load_string("""
                     pos_hint: {"right": 1}
                     on_press: 
                         root.store_kot_input(category.text, year.text, month.text, day.text, time.text)        
-                    on_press: 
                         root.show_last()
                 Button:
                     text: 'Goto food'
@@ -269,7 +268,6 @@ Builder.load_string("""
                     pos_hint: {"right": 1}
                     on_press: 
                         root.store_input(food.text, amount.text, year.text, month.text, day.text, time.text, dir_food.text)        
-                    on_press: 
                         root.show_last()
                 Button:
                     text: 'placeholder'
@@ -301,18 +299,19 @@ def adjust_minutes(inp_min):
         str_minute = "30"
     return str_minute
 
-#def get_environment():
+def get_filepath():
+    #return "/sdcard/KOTSTAT"
+    return "C:/Users/macrh/repos/kotstat"
 
 
 
 # Declare both screens
 class KOT(Screen):
     def show_last(self):
-        filepath = "/sdcard/KOTSTAT/kot.csv"
-        #filepath = "C:/Users/macrh/repos/kotstat/test2.csv"
+        filepath=join(get_filepath(), "kot.csv")
         if(exists(filepath)):
             df = pd.read_csv(filepath, dtype=str)
-            self.ids.dir_kot.text = str(df.iloc[-1:]).split("\n")[1]
+            self.ids.dir_kot.text = str(df.iloc[-3:]).split("\n", maxsplit=1)[1]
     def get_time(self):
         now = datetime.datetime.now()
         hour = now.hour
@@ -331,9 +330,7 @@ class KOT(Screen):
         self.ids.month.text = str(new_date.month)
         self.ids.year.text = str(new_date.year)
     def store_kot_input(self, cat, year, month, day, time):
-        #filepath=join(dir, 'kot.csv')
-        #filepath="C:/Users/macrh/repos/kotstat/test2.csv"
-        filepath="/sdcard/KOTSTAT/kot.csv"
+        filepath = join(get_filepath(), "kot.csv")
         new_data = {
             "year": [year],
             "month": [month],
@@ -346,7 +343,6 @@ class KOT(Screen):
             new_df= pd.concat([df, pd.DataFrame(new_data)], ignore_index=True)
         else:
             new_df = pd.DataFrame(new_data)
-        #print(new_df)
         if((float(cat) > 0) and (float(cat) < 8)):
             new_df.to_csv(filepath, index=False)
         self.ids.category.text = '0'
@@ -359,16 +355,15 @@ class KOT(Screen):
             new = 0
         if new>7:
             new = 7
-        self.ids.category.text = str(new)
+        self.ids.category.text = str(int(new))
     pass
 
 class FOOD(Screen):
     def show_last(self):
-        filepath = "/sdcard/KOTSTAT/food.csv"
-        #filepath = "C:/Users/macrh/repos/kotstat/test.csv"
+        filepath = join(get_filepath(), "food.csv")
         if(exists(filepath)):
             df = pd.read_csv(filepath, dtype=str)
-            self.ids.dir_food.text = str(df.iloc[-1:]).split("\n")[1]
+            self.ids.dir_food.text = str(df.iloc[-3:]).split("\n", maxsplit=1)[1]
     def get_time(self):
         now = datetime.datetime.now()
         hour = now.hour
@@ -393,8 +388,7 @@ class FOOD(Screen):
             new = 0
         self.ids.amount.text = str(new)
     def store_input(self, food, amount, year, month, day, time, dir):
-        #filepath="C:/Users/macrh/repos/kotstat/test.csv"
-        filepath = "/sdcard/KOTSTAT/food.csv"
+        filepath = join(get_filepath(), "food.csv")
         new_data={
             "year": [year],
             "month": [month],
