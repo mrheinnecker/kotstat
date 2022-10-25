@@ -5,6 +5,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.textinput import TextInput
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.uix.image import Image
 from os.path import dirname, join, exists
 import datetime
 import pandas as pd
@@ -118,12 +119,13 @@ Builder.load_string("""
         BoxLayout:
             orientation: 'horizontal'
             size_hint: (1, 7)  
-            Button:
-                text: 'most common food'  
-                size_hint: (1, 1)                                 
+            Image:            
+                id: stool_cat
+                source: 'C:/Users/macrh/repos/kotstat/bristol_stoolchart_image.png' 
+                allow_stretch: True                               
             BoxLayout:
-                orientation: 'vertical'
                 size_hint: (1, 1)  
+                orientation: 'vertical'
                 Button:
                     text: 'enter'
                     size_hint: (1, 1)
@@ -407,6 +409,7 @@ class FOOD(Screen):
         if(food!=''):
             new_df.to_csv(filepath, index=False)
             self.ids.food.text = ''
+            self.ids.amount.text = '1'
     pass
 
 class TestApp(App):
