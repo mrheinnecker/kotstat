@@ -53,6 +53,7 @@ Builder.load_string("""
                 on_press: root.manager.current = 'food'  
         BoxLayout:
             orientation: 'horizontal'
+            size_hint: (1, 2)
             Button:
                 text: '+ 1d'
                 size_hint: (1, 1)
@@ -72,7 +73,8 @@ Builder.load_string("""
                 on_press:
                     root.change_time(1800, day.text, month.text, year.text, time.text)
         BoxLayout:
-            orientation: 'horizontal'                               
+            orientation: 'horizontal' 
+            size_hint: (1, 2)                              
             Button:
                 text: '- 1d'
                 size_hint: (1, 1)
@@ -115,7 +117,7 @@ Builder.load_string("""
                     root.change_amount("-", category.text)  
         BoxLayout:
             orientation: 'horizontal'
-            size_hint: (1, 3)  
+            size_hint: (1, 7)  
             Button:
                 text: 'most common food'  
                 size_hint: (1, 1)                                 
